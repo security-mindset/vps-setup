@@ -1,0 +1,26 @@
+[sshd]
+enabled = true
+port    = ssh
+logpath = /var/log/auth.log
+backend = auto
+maxretry = 4
+bantime  = 86400
+findtime = 600
+
+filter = sshd
+#
+# ACTIONS
+#
+
+# Some options used for actions
+
+destemail = linsan.saliou@gmail.com
+
+action_ = %(banaction)s[name=%(__name__)s, port="%(port)s"]
+banaction = iptables-allports
+action_mw = %(banaction)s[name=%(__name__)s, port="%(port)s"]
+              mail-whois[name=%(__name__)s, dest="%(destemail)s"]
+action_mwl = %(banaction)s[name=%(__name__)s, port="%(port)s"]
+               mail-whois-lines[name=%(__name__)s, dest="%(destemail)s", logpath=%(logpath)s]
+action = %(action_)s
+

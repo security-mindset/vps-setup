@@ -1,0 +1,11 @@
+[Definition]
+
+actioncheck =
+actionstart =
+actionstop =
+actionban = /bin/bash /etc/fail2ban/slack_notify.sh "Banned _country_  in the jail  after  attempts" "" > /dev/null 2>&1
+actionunban = /bin/bash /etc/fail2ban/slack_notify.sh "Unbanned _country_  in the jail " "" > /dev/null 2>&1
+
+# Default name of the chain
+#
+name = default

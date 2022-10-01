@@ -1,0 +1,19 @@
+#################################################
+#                Rkhunter config                #
+#           Author: Mamadou Saliou DIAWARA      #
+#################################################
+
+- name: install Rkhunter
+  apt:
+    name: "{{ item }}"
+    state: latest
+  loop: 
+  - rkhunter
+  
+- name: Copy  script 
+  copy: src=../files/rkhunter.j2 dest=/etc/default/rkhunter
+
+- name: update
+  command:  rkhunter --propupd
+  become: true
+

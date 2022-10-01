@@ -1,0 +1,77 @@
+#################################################
+#                SSH config                     #
+#           Author: Mamadou Saliou DIAWARA      #
+#################################################
+
+# - name: Disable Root Login
+#   lineinfile:
+#     dest: "/etc/ssh/sshd_config"
+#     regexp: "^PermitRootLogin"
+#     line: "PermitRootLogin no"
+#     state: present
+
+# - name: Allow only bendiabot user to login
+#   lineinfile: dest=/etc/ssh/sshd_config regexp="^AllowUsers" line="AllowUsers bendiabot" state=present
+
+
+- name: Setup alternate SSH port
+  lineinfile:
+    dest: "/etc/ssh/sshd_config"
+    regexp: "^Port 22"
+    line: "Port {{ SSH_PORT }}"
+    state: present
+
+
+# - name: Allow only admin
+#   lineinfile:
+#     dest: "/etc/ssh/sshd_config"
+#     regexp: "^AllowUsers "
+#     line: "AllowUsers {{ user }}"
+#     state: present
+
+# - name: Allow only sshusers group
+#   lineinfile:
+#     dest: "/etc/ssh/sshd_config"
+#     regexp: "^AllowGroups "
+#     line: "AllowGroups sshusers"
+#     state: present
+
+# Disable password authentification
+- name: Disable password authentification
+  lineinfile:
+    dest: "/etc/ssh/sshd_config"
+    regexp: "^ChallengeResponseAuthentication "
+    line: "ChallengeResponseAuthentication no"
+    state: present
+
+- name: Disable password authentification
+  lineinfile:
+    dest: "/etc/ssh/sshd_config"
+    regexp: "^PasswordAuthentication "
+    line: "PasswordAuthentication no"
+    state: present
+    
+# Enable SSHkey authentification
+- name: enable privatekey authentification
+  lineinfile:
+    dest: "/etc/ssh/sshd_config"
+    regexp: "^RSAAuthentication "
+    line: "RSAAuthentication yes"
+    state: present
+
+- name: enable publickey authentification
+  lineinfile:
+    dest: "/etc/ssh/sshd_config"
+    regexp: "^PubkeyAuthentication "
+    line: "PubkeyAuthentication yes"
+    state: present
+
+# - name: Disable root login
+#     user:
+#       name: root
+#       password_lock: true
+
+- name: Restart sshd
+  service:
+    name: sshd
+    state: restarted

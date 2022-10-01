@@ -1,0 +1,15 @@
+
+#################################################
+#              Update tools on VPS              #
+#           Author: Mamadou Saliou DIAWARA      #
+#################################################
+- name: Update crontab
+  cron:
+    name: "Update system"
+    minute: 30
+    hour: 2
+    weekday: 2
+    job: "sudo apt-get update > >/dev/null 2>&1"
+    #user: "admin"
+    disabled: "no"
+ become: true

@@ -1,0 +1,40 @@
+#################################################
+#                    VPS Setup                  #
+#           Author: Mamadou Saliou DIAWARA      #
+#################################################
+---
+- hosts: "{{ host }}"
+  become: true
+  vars_files:
+  - ../vars/default.yml
+  vars:
+    ansible_port: "{{ SSH_PORT }}"
+  tasks:
+  install tools
+  - name: Install tools
+    include_tasks: tasks/install_tools.yaml
+  # SSH conf
+  - name: SSH conf
+    include_tasks: tasks/ssh_conf.yaml
+  Firewall UFW
+  - name: UFW
+    include_tasks: tasks/ufw.yaml
+  # ipv6
+  - name: Disable ipv6
+    include_tasks: tasks/ipv6.yaml
+  # SSH login watch
+  - name: SSH Login Watch
+    include_tasks: tasks/sshwatch.yaml
+  # Logwatch
+  - name: logwatch
+    include_tasks: tasks/logwatch.yaml
+  #  RKhunter
+  - name: rkhunter
+    include_tasks: tasks/rkhunter.yaml
+  # ClamAV
+  - name: clamAV
+    include_tasks: tasks/antivirus.yaml
+  # Fail2ban
+  - name: Fail2ban
+    include_tasks: fail2ban/fail2ban-setup.yaml
+     

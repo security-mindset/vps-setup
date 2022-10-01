@@ -1,0 +1,19 @@
+#################################################
+#                 Logwatch config                #
+# Is a utility that allows you to analyze your logs
+#           Author: Mamadou Saliou DIAWARA      #
+#################################################
+- name: install logwatch
+  apt:
+    name: "{{ item }}"
+    state: latest
+  loop: 
+  - logwatch
+  
+- name: Copy  script 
+  copy: src=../files/logwatch.j2 dest=/etc/logwatch/conf/logwatch.conf
+
+- name: Generate report
+  command: logwatch --mailto  {{ destemail }} --output html
+  become: true
+

@@ -1,0 +1,154 @@
+#################################################
+#                 Fail2Ban tasks                #
+#           Author: Mamadou Saliou DIAWARA      #
+#################################################
+# Set facts
+  - name: Set filters and rules
+    set_fact:
+      filters_files:
+        - nginx-badbots.conf
+        - nginx-http-auth.conf
+        - nginx-nohome.conf
+        - nginx-noproxy.conf
+        - nginx-noscript.conf
+        - nginx-req-limit.conf
+        - nginx-worpress.conf
+        - nginx-generic.conf
+        
+      rules:
+        - nginx-badbots
+        - nginx-nohome
+        - nginx-http-auth
+        - nginx-noproxy
+        - nginx-noscript
+        - nginx-req-limit
+        - sshd
+        - sshd-ddos
+        - nginx-wordpress
+        - nginx-generic
+        - nginx-proxy
+        - nginx-login
+        - php-url-fopen
+        
+  # Check fail2ban
+  - name: Checking if fail2ban is already installed
+    stat: path={{fail2ban_service_location}}
+    register: fail2ban_service
+
+
+
+  # Install fail2ban
+  - name: Install Fail2Ban
+    apt: name=fail2ban state=present
+    when: not fail2ban_service.stat.exists
+
+  - name: Checking if new filers are installed
+    stat: path=/etc/fail2ban/filter.d/nginx-badbots.conf
+    register: filters
+
+  - name: Checking if jail.d folder exists
+    stat: path=/etc/fail2ban/jail.d
+    register: jail_d_folder
+
+  - name: Ensuring jail.d folder exists
+    file: path=/etc/fail2ban/jail.d state=directory
+    become: true
+
+  - name: Checking if new jails are installed
+    stat: path=/etc/fail2ban/jail.d/nginx-jails.conf
+    register: jails
+
+  - name: Checking if jail.local file exists if no jail.d folder
+    stat: path=/etc/fail2ban/jail.conf
+    register: jail_local
+
+  # Copy Fail2ban files
+
+  - name: Copying filters
+    copy: src=../templates/filters/{{ item }}.j2 dest=/etc/fail2ban/filter.d/{{ item }}
+    with_items:
+    - "{{ filters_files }}"
+  
+  - name: Copying filters
+    copy: src=../jails/{{ item }}.local dest=/etc/fail2ban/jail.d/{{ item }}.conf
+    with_items:
+    - "nginx-req-limit"
+    - "sshd"
+    - "nginx-http-auth"
+  
+  - name: copy sendmail-whois.conf to  /action.d/sendmail-whois.local
+    template:
+      src: ../templates/sendmail-whois.conf
+      dest: /etc/fail2ban/action.d/sendmail-whois.local
+      mode: 0644
+      owner: root
+      group: root
+
+
+
+  - name: Copy iptables-multiport.conf to /etc/fail2ban/action.d/iptables-multiport.conf
+    template:
+      src: ../templates/iptables-multiport.conf
+      dest: /etc/fail2ban/action.d/iptables-multiport.conf
+      mode: 0644
+      owner: root
+      group: root
+
+
+
+  # Slack notifications
+  - name: Copy slack_notify.sh.j2 to /etc/fail2ban/slack_notify.sh
+    template:
+      src: ../templates/slack_notify.sh.j2
+      dest: /etc/fail2ban/slack_notify.sh
+      mode: 0755
+      owner: root
+      group: root
+
+  - name: Copy slack.conf.j2 to /etc/fail2ban/action.d/slack.conf
+    template:
+      src: ../templates/slack.conf.j2
+      dest: /etc/fail2ban/action.d/slack.conf
+      mode: 0644
+      owner: root
+      group: root
+
+
+  # #  Enable Fail2ban
+
+  - name: Enable fail2ban service
+    systemd:
+      name: fail2ban
+      enabled: yes
+      state: restarted
+    
+
+  # # Jail status
+
+  - name: Jail status
+    command: fail2ban-client status {{ item }}
+    loop: 
+    - sshd
+    - nginx-req-limit
+    - nginx-http-auth
+    register: list
+  
+  - debug:
+      msg: "{{ list }}"
+
+  - name: Iptables
+    command: iptables -S
+    register: list
+
+  - debug:
+      msg: "{{ list }}"
+
+  - name: Status
+    command: systemctl status fail2ban
+    register: list
+
+  - debug:
+      msg: "{{ list.stdout_lines }}"
+  
+  
+

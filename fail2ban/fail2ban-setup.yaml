@@ -1,0 +1,14 @@
+#################################################
+#                 Fail2Ban Setup                #
+#           Author: Mamadou Saliou DIAWARA      #
+#################################################
+- hosts: "{{ host }}"
+  become: true
+  vars_files:
+  - ../vars/default.yml
+  vars:
+    ansible_port: "{{ SSH_PORT }}"
+  tasks:
+  - name: Fail2ban
+    include_tasks: tasks/fail2ban.yaml
+     

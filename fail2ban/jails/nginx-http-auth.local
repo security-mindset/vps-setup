@@ -1,0 +1,24 @@
+[nginx-http-auth]
+enabled  = true
+filter   = nginx-http-auth
+port     = http,https
+logpath  = /var/log/nginx/access.log
+backend = auto
+
+#
+# ACTIONS
+#
+
+# Some options used for actions
+
+destemail = linsan.saliou@gmail.com
+
+action_ = %(banaction)s[name=%(__name__)s, port="%(port)s"]
+banaction = iptables-allports
+action_mw = %(banaction)s[name=%(__name__)s, port="%(port)s"]
+              mail-whois[name=%(__name__)s, dest="%(destemail)s"]
+action_mwl = %(banaction)s[name=%(__name__)s, port="%(port)s"]
+               mail-whois-lines[name=%(__name__)s, dest="%(destemail)s", logpath=%(logpath)s]
+
+
+action = %(action_)s

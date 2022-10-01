@@ -1,0 +1,33 @@
+#################################################
+#                 ClamAV Antivirus              #
+#           Author: Mamadou Saliou DIAWARA      #
+#################################################
+
+- name: Update
+  shell: apt update && sudo apt upgrade -y
+  become: true
+
+- name: Install ClamAV
+  shell: apt install clamav clamav-daemon -y
+  become: true
+- name: Update ClamAV database
+  shell: "{{ item }}"
+  loop:
+  - systemctl stop clamav-freshclam #stop clamav
+  - freshclam #update database
+  - systemctl enable clamav-freshclam --now
+  become: true
+- name: Scan files with cronjob
+  shell: "{{ item }}"
+  loop:
+  - sudo clamscan --bell -i -r /home # scanner recussivement les fichiers
+  - sudo clamscan -r --remove /home/USER # supprimer les fichiers infectés
+  
+# Some useful command
+# clamscan -h # get help
+# ls -l /var/lib/clamav/
+# sudo clamscan [options] [file/directory/-]
+# sudo clamscan -i /home/ # scan files infected
+# sudo clamscan -o /home/ # ignore files print OK
+# sudo clamscan --bell -i /home #activer la cloche
+# sudo clamscan --no-summary /home/ 

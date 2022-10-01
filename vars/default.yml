@@ -1,0 +1,35 @@
+---
+# create_user: user
+# copy_local_key: "{{ lookup('file', lookup('env','HOME') + '/.ssh/id_rsa.pub') }}"
+sys_packages: 
+  - vim
+  - python3
+  - git
+  - ntp
+  - ack-grep
+  # - lynx-cur
+  - logrotate
+  # mosh
+  - mosh
+  - rsyslog
+  - screen
+  - tree
+  - unzip
+  - python2.7
+  - python-pip
+  - python2.7-dev
+  # Not installed by default on vagrant ubuntu
+  # boxes
+  - curl
+  - maven
+  - python3-pip
+certbot_package: "python3-certbot-nginx"
+certbot_plugin: "nginx"
+certbot_mail_address: yourmail
+SSH_PORT: 9995
+bantime: 86400 # 1 day
+destemail: "yourmail"
+user: "user"
+hook_url: "https://hooks.slack.com/services/id/id/id"
+nginx_logpath: /var/log/nginx/access.log
+fail2ban_service_location: /etc/init.d/fail2ban

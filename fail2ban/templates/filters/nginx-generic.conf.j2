@@ -1,0 +1,12 @@
+# 1) Catch requests for certain scripts we don't host
+# 2) Catch script requests we don't host
+
+[Definition]
+
+goodbots  = UptimeRobot/2\.0
+
+
+failregex = ^ .* "(GET|POST|HEAD|PROPFIND) /+(?i)(a2billing|apache|axis|cfide|cgi|cms|config|etc|\.git|hnap|inc|jenkins|jmx-|joomla|lib|linuxsucks|msd|muieblackcat|mysql|myadmin|n0w|owa-autodiscover|pbxip|php|pma|recordings|sap|sdk|script|shell|sqlite|vmskdl44rededd|vtigercrm|w00tw00t|webdav|websql|xampp|xxbb|phpmyadmin|phpMyAdmin)
+            ^ .* "(GET|POST|HEAD) /[^"]+\.(asp|cgi|exe|jsp|mvc|pl)( |\?)
+
+ignoreregex = ^ -.*"(GET|POST|HEAD).*HTTP.*"(?:%(goodbots)s)"$

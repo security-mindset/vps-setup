@@ -1,0 +1,114 @@
+#################################################
+#                 VPS Setup tools               #
+#           Author: Mamadou Saliou DIAWARA      #
+#################################################
+      - name: Install nginx server
+        block:
+        - name: Update cache
+          apt:
+            update_cache: true
+        - name: Install nginx
+          apt:
+            name: nginx
+            state: latest
+        - name: Install nginx-extra
+          apt:
+            name: nginx-extras
+            state: latest
+      # Docker setup
+      - name: Install packages using apt
+        apt: 
+          name:
+            - apt-transport-https
+            - ca-certificates
+            - curl
+            - software-properties-common
+          state: present
+          update_cache: yes
+      # Add GPG key
+      - name: Add Docker s GPG key for ubuntu from official site
+        apt_key:
+          url: https://download.docker.com/linux/ubuntu/gpg
+          state: present
+        tags:
+        - docker
+      # Verify fingerprint
+      - name: Verify gpg key with the fingerprint
+        apt_key:
+          id: 0EBFCD88
+          state: present
+        tags:
+        - docker
+      # Configure stable repository
+      - name: Configure Docker for ubuntu stable repository
+        apt_repository:
+          repo: deb [arch=amd64] https://download.docker.com/linux/ubuntu xenial stable
+          state: present
+          update_cache: yes
+        tags:
+          - docker
+      # Update 
+      - name: Update apt packages
+        apt:
+          update_cache: yes
+        tags:
+          - docker
+      # Install docker-ce
+      - name: Install docker-ce
+        apt:
+          name: docker-ce
+          state: present
+          update_cache: yes
+        tags:
+          - docker
+
+      # Add user ubuntu to docker user
+      - name: Add "ubuntu" user to "docker" group
+        user:
+          name: "ubuntu"
+          group: "docker"
+          append: yes
+        tags:
+          - docker
+      # Install Docker-compose
+      - name: Install docker-compose from official github repo
+        shell: yes | sudo apt install docker-compose
+      # Install packages
+      - name: Install a list of packages
+        apt: name={{ item }} state=latest
+        with_items:
+        - "{{sys_packages}}"
+
+       # Verifiy version and services
+      - name: List application configuration with ufw
+        ansible.builtin.command:   "{{item}}"
+        with_items:
+        - nginx -v
+        - ufw app list
+        - mvn -v
+        register: result
+      - name: Print application configuration
+        debug:
+          msg: "{{result.results }}"
+      # Install cerboot
+      - name: Install Certbot.
+        package: "name=letsencrypt state=present"
+
+      # Install python
+      - name : Install Python Package
+        apt: name=python3 update_cache=yes state=latest
+        # Install Cerboot
+      - name : Install Let's Encrypt Package
+        apt: name={{ certbot_package }} update_cache=yes state=latest
+      
+      - name: Install Ansible
+        command: apt install ansible
+        https://docs.ansible.com/ansible/latest/installation_guide/intro_installation.html
+        become: true
+      - name: ansible version
+        command: ansible --version
+        register: result
+        become: true
+      - debug:
+          msg: "{{ result }}"
+

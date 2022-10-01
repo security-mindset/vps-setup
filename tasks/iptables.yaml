@@ -1,0 +1,67 @@
+#################################################
+#                 Iptables config               #
+#           Author: Mamadou Saliou DIAWARA      #
+#################################################
+
+- name: Set iptables rules
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: 9090
+    ctstate: NEW
+    jump: ACCEPT
+    comment: cockpit allow rule
+  become: true 
+
+- name: Allow HTTP
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: 80
+    ctstate: NEW
+    jump: ACCEPT
+    comment: Allow HTTP
+  become: true 
+
+- name: Allow HTTPS
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_port: 443
+    ctstate: NEW
+    jump: ACCEPT
+    comment: Allow HTTPS
+  become: true 
+
+- name: Block and forward
+  ansible.builtin.iptables:
+    chain: INPUT
+    source: 10.10.20.3
+    jump: DROP
+  become: true 
+
+- name: Forward port 80 to 8000
+  ansible.builtin.iptables:
+    table: nat
+    chain: PREROUTING
+    in_interface: eth0
+    protocol: tcp
+    match: tcp
+    destination_port: 80
+    source: 10.10.20.3
+    jump: REDIRECT
+    to_ports: 8000
+    comment: Redirect web traffic to port 8800
+  become: true 
+
+- name: Allow connections on multiple ports
+  ansible.builtin.iptables:
+    chain: INPUT
+    protocol: tcp
+    destination_ports:
+      - "80"
+      - "443"
+      - "8081:8083"
+    jump: ACCEPT
+    
+  become: yes

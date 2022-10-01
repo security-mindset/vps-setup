@@ -1,0 +1,19 @@
+#################################################
+#                 Portsentry config             #
+#           Author: Mamadou Saliou DIAWARA      #
+#################################################
+
+- name: install Portsentry
+  apt:
+    name: "{{ item }}"
+    state: latest
+  loop: 
+  - portsentry
+  
+- name: Copy  script 
+  copy: src=../files/rkhunter.j2 dest=/etc/default/rkhunter
+
+- name: update
+  command:  rkhunter --propupd
+  become: true
+

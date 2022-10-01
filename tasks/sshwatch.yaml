@@ -1,0 +1,26 @@
+
+#################################################
+#               SSH Login Watch                 #
+#    Allows to be notified on an SSH connection #
+#           Author: Mamadou Saliou DIAWARA      #
+#################################################
+
+- name: install mailutils &  finger
+  apt:
+    name: "{{ item }}"
+    state: latest
+  loop: 
+  - finger
+  - mailutils
+  
+- name: Copy  script 
+  copy: src=../files/shell-login.sh dest=/opt/shell-login.sh
+- name: Insert a line at the end of a file.
+  lineinfile:
+    path: /etc/profile
+    line: /opt/shell-login.sh | mailx -s "Connexion SSH détectée" {{ destemail }}
+  become: true
+   
+- name: Changer droit
+  command: chmod 755 /opt/shell-login.sh
+
